@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../SnkrStore.API/SnkrStore.API.csproj" />
+  <Project Path="SnkrStore.Domain.csproj" />
+</Solution>
