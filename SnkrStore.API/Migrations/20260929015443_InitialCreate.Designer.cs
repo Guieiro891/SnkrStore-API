@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SnkrStore.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260927063209_InitialCreate")]
+    [Migration("20260929015443_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -105,6 +105,7 @@ namespace SnkrStore.API.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("PrecoPago")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Quantidade")
@@ -156,6 +157,7 @@ namespace SnkrStore.API.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Valor")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
@@ -182,18 +184,21 @@ namespace SnkrStore.API.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("Desconto")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Entrega")
                         .HasColumnType("int");
 
                     b.Property<decimal>("Frete")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<decimal>("ValorTotal")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
@@ -221,6 +226,7 @@ namespace SnkrStore.API.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Preco")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Tamanho")

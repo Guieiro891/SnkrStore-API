@@ -55,7 +55,7 @@ namespace SnkrStore.API.Migrations
                     PedidoId = table.Column<int>(type: "int", nullable: false),
                     TenisId = table.Column<int>(type: "int", nullable: false),
                     Quantidade = table.Column<int>(type: "int", nullable: false),
-                    PrecoPago = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    PrecoPago = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -85,7 +85,7 @@ namespace SnkrStore.API.Migrations
                     PedidoId = table.Column<int>(type: "int", nullable: false),
                     Tipo = table.Column<int>(type: "int", nullable: false),
                     StatusP = table.Column<int>(type: "int", nullable: false),
-                    Valor = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    Valor = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -100,9 +100,9 @@ namespace SnkrStore.API.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ClienteId = table.Column<int>(type: "int", nullable: false),
                     Data = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Desconto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Frete = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    ValorTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Desconto = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    Frete = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    ValorTotal = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     Entrega = table.Column<int>(type: "int", nullable: false),
                     ComprovanteFiscal = table.Column<string>(type: "nvarchar(max)", nullable: false)
@@ -121,7 +121,7 @@ namespace SnkrStore.API.Migrations
                     Modelo = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Tamanho = table.Column<int>(type: "int", nullable: false),
                     Cor = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Preco = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Preco = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     MarcaId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
