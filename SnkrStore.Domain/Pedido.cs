@@ -11,9 +11,10 @@ public class Pedido
     public StatusPedido Status { get; set; }
     public StatusEntrega Entrega { get; set; }
     public string ComprovanteFiscal { get; set; } = string.Empty;
+    public string Cupom { get; set; } = string.Empty;
 
     public Pedido() { }
-    public Pedido (int id, int clienteId, DateTime data, decimal desconto,decimal frete, decimal valorTotal, StatusPedido status, StatusEntrega entrega)
+    public Pedido (int id, int clienteId, DateTime data, decimal desconto,decimal frete, decimal valorTotal, StatusPedido status, StatusEntrega entrega, string cupom)
     {
         Id = id;
         ClienteId = clienteId;
@@ -24,6 +25,7 @@ public class Pedido
         Status = status;
         Entrega = entrega;
         ComprovanteFiscal = ComprovanteFiscal;
+        Cupom = cupom;
     }
 
 }
