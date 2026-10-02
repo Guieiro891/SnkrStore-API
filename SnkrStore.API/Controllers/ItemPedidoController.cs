@@ -41,7 +41,16 @@ public class ItemPedidoController : ControllerBase
         var item = await _context.ItensPedidos.FirstOrDefaultAsync(i => i.Id == id);
         if (item == null)
             return NotFound();
-        
+        var tenis = await _context.Tenis.FirstOrDefaultAsync(t => t.Id == item.TenisId);
+        if (tenis == null)
+            return NotFound();
+        var quantidadeAntiga = item.Quantidade;
+        item.Quantidade = itemPedido.Quantidade;
+        var diferenca = itemPedido.Quantidade - quantidadeAntiga;
+        if (diferenca > 0 && tenis.Estoque < diferenca)
+            return BadRequest("Estoque insuficiente para alteracao");
+        tenis.Estoque -= diferenca;
+
         item.PedidoId = itemPedido.PedidoId;
         item.PrecoPago = itemPedido.PrecoPago;
         item.Quantidade = itemPedido.Quantidade;
@@ -57,6 +66,10 @@ public class ItemPedidoController : ControllerBase
         var itemDeletar = await _context.ItensPedidos.FirstOrDefaultAsync(i => i.Id == id);
         if (itemDeletar == null)
             return NotFound();
+        var tenisDevolver = await _context.Tenis.FirstOrDefaultAsync(t => t.Id == itemDeletar.TenisId);
+        if (tenisDevolver == null)
+            return NotFound();
+        tenisDevolver.Estoque += itemDeletar.Quantidade;
         _context.ItensPedidos.Remove(itemDeletar);
         await _context.SaveChangesAsync();
         return NoContent();
