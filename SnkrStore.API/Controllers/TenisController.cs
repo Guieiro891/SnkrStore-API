@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+
 [ApiController]
 [Route("api/[controller]")]
 public class TenisController : ControllerBase
@@ -16,6 +17,15 @@ public class TenisController : ControllerBase
     {
         var tenis = await _context.Tenis.ToListAsync();
         return Ok(tenis);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Tenis>> Buscar(int id)
+    {
+        var buscar = await _context.Tenis.FirstOrDefaultAsync(b => b.Id == id);
+        if (buscar == null)
+            return NotFound();
+        return Ok(buscar);
     }
 
     [HttpPost]

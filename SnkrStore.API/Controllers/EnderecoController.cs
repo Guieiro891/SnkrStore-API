@@ -19,6 +19,15 @@ public class EnderecoController : ControllerBase
         return Ok(enderecoLista);
     }
 
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Endereco>> Buscar(int id)
+    {
+        var busca = await _context.Enderecos.FirstOrDefaultAsync(e => e.Id == id);
+        if (busca == null)
+            return NotFound();
+        return Ok(busca);
+    }
+
     [HttpPost]
     public async Task<ActionResult<Endereco>> Criar([FromBody] Endereco endereco)
     {

@@ -19,6 +19,15 @@ public class PagamentoController : ControllerBase
         return Ok(listaAtual);
     }
 
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Pagamento>> Buscar(int id)
+    {
+        var busca = await _context.Pagamentos.FirstOrDefaultAsync(p => p.Id == id);
+        if (busca == null)
+            return NotFound();
+        return Ok(busca);
+    }
+
     [HttpPost]
     public async Task <ActionResult<Pagamento>> Criar([FromBody] Pagamento pagamento)
     {

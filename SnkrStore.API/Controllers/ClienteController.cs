@@ -19,6 +19,15 @@ public class ClienteController : ControllerBase
         return Ok(cliente);
     }
 
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Cliente>> Buscar(int id)
+    {
+        var busca = await _context.Clientes.FirstOrDefaultAsync(c => c.Id == id);
+        if (busca == null)
+            return NotFound();
+        return Ok(busca);
+    }
+
     [HttpPost]
     public async Task<ActionResult<Cliente>> Criar([FromBody] Cliente cliente)
     {

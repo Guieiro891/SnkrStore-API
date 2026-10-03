@@ -21,6 +21,16 @@ public class MarcasController : ControllerBase
         return Ok(marcas);
     }
 
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Marca>>Busca(int id)
+    {
+        var marca = await _context.Marcas.FirstOrDefaultAsync(busca => busca.Id == id);
+        if (marca == null)
+            return NotFound();
+        
+        return Ok(marca);
+    }
+
     [HttpPost]
     public async Task<ActionResult<Marca>> Criar([FromBody] Marca marca)
     {

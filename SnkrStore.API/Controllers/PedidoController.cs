@@ -19,12 +19,40 @@ public class PedidoController : ControllerBase
         return Ok(listaAtual);
     }
 
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Pedido>> Buscar(int id)
+    {
+        var busca = await _context.Pedidos.FirstOrDefaultAsync(p => p.Id == id);
+        if (busca == null)
+            return NotFound();
+        return Ok(busca);
+    }
+
     [HttpPost]
     public async Task<ActionResult<Pedido>> Criar([FromBody] Pedido pedido)
     {
         _context.Pedidos.Add(pedido);
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(Listar), new { id = pedido.Id }, pedido);
+    }
+
+    [HttpPost("{id}/finalizar")]
+    public async Task<ActionResult<Pedido>> Finalizar(int id)
+    {
+        var pedidoFinalizado = await _context.Pedidos.FirstOrDefaultAsync(p => p.Id == id);
+        if (pedidoFinalizado == null)
+            return NotFound();
+        var listaItens = await _context.ItensPedidos.Where(i => i.PedidoId == id).ToListAsync();
+        if (!listaItens.Any())
+            return BadRequest("O pedido não possui itens");
+        var subTotal = listaItens.Sum(item => item.PrecoPago * item.Quantidade);
+        var valorTotal = (subTotal - pedidoFinalizado.Desconto) + pedidoFinalizado.Frete;
+        pedidoFinalizado.ValorTotal = valorTotal;
+        pedidoFinalizado.Status = StatusPedido.Pago;
+
+        await _context.SaveChangesAsync();
+        return Ok(pedidoFinalizado);
+        
     }
 
     [HttpPut("{id}")]

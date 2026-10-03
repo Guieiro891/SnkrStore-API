@@ -19,6 +19,15 @@ public class ItemPedidoController : ControllerBase
         return Ok(item);
     }
 
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ItemPedido>> Buscar(int id)
+    {
+        var busca = await _context.ItensPedidos.FirstOrDefaultAsync(i => i.Id == id);
+        if (busca == null)
+            return NotFound();
+        return Ok(busca);
+    }
+
     [HttpPost]
     public async Task<ActionResult<ItemPedido>> Criar([FromBody]  ItemPedido itemPedido)
     {
