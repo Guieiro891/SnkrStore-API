@@ -31,6 +31,7 @@ public class ClienteController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Cliente>> Criar([FromBody] Cliente cliente)
     {
+        cliente.SenhaHash = BCrypt.Net.BCrypt.HashPassword(cliente.SenhaHash);
         _context.Clientes.Add(cliente);
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(Listar), new { id = cliente.Id }, cliente);
@@ -46,7 +47,7 @@ public class ClienteController : ControllerBase
         clienteAtualizado.Numero = cliente.Numero;
         clienteAtualizado.Email = cliente.Email;
         clienteAtualizado.CPF = cliente.CPF;
-        clienteAtualizado.SenhaHash = cliente.SenhaHash;
+        clienteAtualizado.SenhaHash = BCrypt.Net.BCrypt.HashPassword(cliente.SenhaHash);
 
         await _context.SaveChangesAsync();
         return Ok(clienteAtualizado);
