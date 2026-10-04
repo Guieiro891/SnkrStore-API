@@ -37,6 +37,22 @@ public class ClienteController : ControllerBase
         return CreatedAtAction(nameof(Listar), new { id = cliente.Id }, cliente);
     }
 
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginRequest login)
+    {
+        var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.Email == login.Email);
+
+        if (cliente == null)
+            return Unauthorized("Email ou senha inválidos");
+
+        bool senhaCorreta = BCrypt.Net.BCrypt.Verify(login.Senha, cliente.SenhaHash);
+
+        if (!senhaCorreta)
+            return Unauthorized("Email ou senha inválidos");
+
+        return Ok(cliente);
+    }
+
     [HttpPut("{id}")]
     public async Task<IActionResult> Atualizar(int id, [FromBody] Cliente cliente)
     {
