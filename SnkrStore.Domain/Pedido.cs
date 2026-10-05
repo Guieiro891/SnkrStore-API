@@ -15,7 +15,7 @@ public class Pedido
     [Range(0, 99999.99, ErrorMessage = "O frete deve estar entre R$ 0,00 e R$ 99.999,99")]
     public decimal Frete { get; set; }
 
-    [Range(0.01, 999999.99, ErrorMessage = "O valor total deve estar entre R$ 0,01 e R$ 999.999,99")]
+    [Range(0, 999999.99, ErrorMessage = "O valor total deve estar entre R$ 0,00 e R$ 999.999,99")]
     public decimal ValorTotal { get; set; }
     public StatusPedido Status { get; set; }
     public StatusEntrega Entrega { get; set; }

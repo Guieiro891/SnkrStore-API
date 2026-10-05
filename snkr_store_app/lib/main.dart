@@ -39,6 +39,28 @@ class _ListaTenisPageState extends State<ListaTenisPage> {
     _futuroTenis = _apiService.buscarTenis();
   }
 
+  Future<void> _comprarTenis(Tenis tenis) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    final sucesso = await _apiService.comprarTenis(tenis);
+
+    if (mounted) Navigator.pop(context);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(sucesso
+              ? 'Compra realizada! ${tenis.modelo} (Tam ${tenis.tamanho})'
+              : 'Erro ao comprar. Tente novamente.'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,10 +89,30 @@ class _ListaTenisPageState extends State<ListaTenisPage> {
                 margin: const EdgeInsets.all(8),
                 child: ListTile(
                   title: Text(t.modelo),
-                  subtitle: Text('Tam: ${t.tamanho} | ${t.cor} | Estoque: ${t.estoque}'),
-                  trailing: Text(
-                    'R\$ ${t.preco.toStringAsFixed(2)}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  subtitle: Text(
+                      'Tam: ${t.tamanho} | ${t.cor} | Estoque: ${t.estoque}'),
+                  trailing: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'R\$ ${t.preco.toStringAsFixed(2)}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      ElevatedButton(
+                        onPressed: () => _comprarTenis(t),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 4),
+                          minimumSize: const Size(0, 32),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Text('Comprar',
+                            style: TextStyle(fontSize: 12)),
+                      ),
+                    ],
                   ),
                 ),
               );

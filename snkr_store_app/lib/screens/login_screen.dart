@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../main.dart';
+import '../sessao.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _carregando = false);
 
     if (resultado != null) {
-      // Login OK - vai para a lista de tênis
+      Sessao.clienteLogado = resultado;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const ListaTenisPage()),
