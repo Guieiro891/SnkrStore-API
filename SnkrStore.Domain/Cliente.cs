@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 public class Cliente
 {
@@ -22,6 +23,7 @@ public class Cliente
     [StringLength(14, MinimumLength = 11, ErrorMessage = "O CPF deve ter entre 11 e 14 caracteres")]
     public string CPF { get; set; } = string.Empty;
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWriting)]
     [Required(ErrorMessage = "A senha é obrigatória")]
     [StringLength(100, MinimumLength = 6, ErrorMessage = "A senha deve ter entre 6 e 100 caractere")]
     public string SenhaHash { get; set; } = string.Empty;
