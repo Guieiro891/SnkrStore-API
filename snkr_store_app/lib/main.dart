@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'models/tenis.dart';
 import 'services/api_service.dart';
+import 'screens/login_screen.dart';
 
 void main() {
   runApp(const SnkrStoreApp());
@@ -16,7 +17,7 @@ class SnkrStoreApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const ListaTenisPage(),
+      home: const LoginScreen(),
     );
   }
 }
