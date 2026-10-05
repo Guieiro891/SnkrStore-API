@@ -17,7 +17,7 @@ class ApiService {
     }
   }
 
-    Future<Map<String, dynamic>?> login(String email, String senha) async {
+  Future<Map<String, dynamic>?> login(String email, String senha) async {
     final response = await http.post(
       Uri.parse('$baseUrl/Cliente/login'),
       headers: {'Content-Type': 'application/json'},
@@ -30,8 +30,8 @@ class ApiService {
       return null;
     }
   }
-    Future<bool> comprarTenis(Tenis tenis) async {
-    // 1. Cria o pedido
+
+  Future<bool> comprarTenis(Tenis tenis) async {
     final pedidoResponse = await http.post(
       Uri.parse('$baseUrl/Pedido'),
       headers: {'Content-Type': 'application/json'},
@@ -52,7 +52,6 @@ class ApiService {
     final pedido = jsonDecode(pedidoResponse.body);
     final pedidoId = pedido['id'];
 
-    // 2. Cria o item do pedido
     final itemResponse = await http.post(
       Uri.parse('$baseUrl/ItemPedido'),
       headers: {'Content-Type': 'application/json'},
@@ -66,11 +65,23 @@ class ApiService {
 
     if (itemResponse.statusCode != 201) return false;
 
-    // 3. Finaliza o pedido (calcula total e muda status para Pago)
     final finalizarResponse = await http.post(
       Uri.parse('$baseUrl/Pedido/$pedidoId/finalizar'),
     );
 
     return finalizarResponse.statusCode == 200;
+  }
+
+  Future<List<Map<String, dynamic>>> buscarMeusPedidos() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/Pedido/cliente/${Sessao.clienteId}'),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> listaJson = jsonDecode(response.body);
+      return listaJson.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Falha ao carregar pedidos: ${response.statusCode}');
+    }
   }
 }

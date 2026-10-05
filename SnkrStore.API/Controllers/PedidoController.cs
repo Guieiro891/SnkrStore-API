@@ -19,6 +19,15 @@ public class PedidoController : ControllerBase
         return Ok(listaAtual);
     }
 
+    [HttpGet("cliente/{clienteId}")]
+    public async Task<IActionResult> ListarPorCliente(int clienteId)
+    {
+        var pedidos = await _context.Pedidos
+            .Where(p => p.ClienteId == clienteId)
+            .ToListAsync();
+        return Ok(pedidos);
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<Pedido>> Buscar(int id)
     {

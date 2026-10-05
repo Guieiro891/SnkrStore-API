@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'models/tenis.dart';
 import 'services/api_service.dart';
 import 'screens/login_screen.dart';
+import 'screens/meus_pedidos_screen.dart';
 
 void main() {
   runApp(const SnkrStoreApp());
@@ -50,13 +51,28 @@ class _ListaTenisPageState extends State<ListaTenisPage> {
 
     if (mounted) Navigator.pop(context);
 
-    if (mounted) {
+    if (!mounted) return;
+
+    if (sucesso) {
+      // 1. Atualiza a lista para refletir o novo estoque
+      setState(() {
+        _futuroTenis = _apiService.buscarTenis();
+      });
+
+      // 2. Mostra mensagem e navega para Meus Pedidos
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(sucesso
-              ? 'Compra realizada! ${tenis.modelo} (Tam ${tenis.tamanho})'
-              : 'Erro ao comprar. Tente novamente.'),
+          content: Text('Compra realizada! ${tenis.modelo} (Tam ${tenis.tamanho})'),
         ),
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const MeusPedidosScreen()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro ao comprar. Tente novamente.')),
       );
     }
   }
@@ -67,6 +83,18 @@ class _ListaTenisPageState extends State<ListaTenisPage> {
       appBar: AppBar(
         title: const Text('Snkr Store'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.receipt_long),
+            tooltip: 'Meus Pedidos',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const MeusPedidosScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: FutureBuilder<List<Tenis>>(
         future: _futuroTenis,
