@@ -41,14 +41,65 @@ class _ListaTenisPageState extends State<ListaTenisPage> {
     _futuroTenis = _apiService.buscarTenis();
   }
 
-  Future<void> _comprarTenis(Tenis tenis) async {
+  Future<void> _escolherPagamento(Tenis tenis) async {
+    int tipoSelecionado = 0;
+
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              title: Text('Comprar ${tenis.modelo} (Tam ${tenis.tamanho})'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Escolha a forma de pagamento:'),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<int>(
+                    value: tipoSelecionado,
+                    items: const [
+                      DropdownMenuItem(value: 0, child: Text('Pix')),
+                      DropdownMenuItem(value: 1, child: Text('Cartão')),
+                      DropdownMenuItem(value: 2, child: Text('Boleto')),
+                    ],
+                    onChanged: (valor) {
+                      if (valor != null) {
+                        setStateDialog(() => tipoSelecionado = valor);
+                      }
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Confirmar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (confirmar == true) {
+      await _comprarTenis(tenis, tipoSelecionado);
+    }
+  }
+
+  Future<void> _comprarTenis(Tenis tenis, int tipoPagamento) async {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) => const Center(child: CircularProgressIndicator()),
     );
 
-    final sucesso = await _apiService.comprarTenis(tenis);
+    final sucesso = await _apiService.comprarTenis(tenis, tipoPagamento);
 
     if (mounted) Navigator.pop(context);
 
@@ -140,7 +191,7 @@ class _ListaTenisPageState extends State<ListaTenisPage> {
                       ),
                       const SizedBox(height: 4),
                       ElevatedButton(
-                        onPressed: () => _comprarTenis(t),
+                        onPressed: () => _escolherPagamento(t),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 4),

@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/[controller]")]
-
 public class PedidoController : ControllerBase
 {
     private readonly AppDbContext _context;
-    public PedidoController (AppDbContext context)
+
+    public PedidoController(AppDbContext context)
     {
         _context = context;
     }
@@ -19,15 +19,6 @@ public class PedidoController : ControllerBase
         return Ok(listaAtual);
     }
 
-    [HttpGet("cliente/{clienteId}")]
-    public async Task<IActionResult> ListarPorCliente(int clienteId)
-    {
-        var pedidos = await _context.Pedidos
-            .Where(p => p.ClienteId == clienteId)
-            .ToListAsync();
-        return Ok(pedidos);
-    }
-
     [HttpGet("{id}")]
     public async Task<ActionResult<Pedido>> Buscar(int id)
     {
@@ -35,6 +26,15 @@ public class PedidoController : ControllerBase
         if (busca == null)
             return NotFound();
         return Ok(busca);
+    }
+
+    [HttpGet("cliente/{clienteId}")]
+    public async Task<IActionResult> ListarPorCliente(int clienteId)
+    {
+        var pedidos = await _context.Pedidos
+            .Where(p => p.ClienteId == clienteId)
+            .ToListAsync();
+        return Ok(pedidos);
     }
 
     [HttpPost]
@@ -51,9 +51,11 @@ public class PedidoController : ControllerBase
         var pedidoFinalizado = await _context.Pedidos.FirstOrDefaultAsync(p => p.Id == id);
         if (pedidoFinalizado == null)
             return NotFound();
+
         var listaItens = await _context.ItensPedidos.Where(i => i.PedidoId == id).ToListAsync();
         if (!listaItens.Any())
             return BadRequest("O pedido não possui itens");
+
         var subTotal = listaItens.Sum(item => item.PrecoPago * item.Quantidade);
         var valorTotal = (subTotal - pedidoFinalizado.Desconto) + pedidoFinalizado.Frete;
         pedidoFinalizado.ValorTotal = valorTotal;
@@ -61,7 +63,31 @@ public class PedidoController : ControllerBase
 
         await _context.SaveChangesAsync();
         return Ok(pedidoFinalizado);
-        
+    }
+
+    [HttpPost("{id}/cancelar")]
+    public async Task<IActionResult> Cancelar(int id)
+    {
+        var pedido = await _context.Pedidos.FirstOrDefaultAsync(p => p.Id == id);
+        if (pedido == null)
+            return NotFound();
+
+        if (pedido.Status == StatusPedido.Cancelado)
+            return BadRequest("Este pedido já foi cancelado");
+
+        // Devolve o estoque de cada item
+        var itens = await _context.ItensPedidos.Where(i => i.PedidoId == id).ToListAsync();
+        foreach (var item in itens)
+        {
+            var tenis = await _context.Tenis.FirstOrDefaultAsync(t => t.Id == item.TenisId);
+            if (tenis != null)
+                tenis.Estoque += item.Quantidade;
+        }
+
+        pedido.Status = StatusPedido.Cancelado;
+        await _context.SaveChangesAsync();
+
+        return Ok(pedido);
     }
 
     [HttpPut("{id}")]
@@ -79,7 +105,6 @@ public class PedidoController : ControllerBase
         pedidoAtualizado.Frete = pedido.Frete;
         pedidoAtualizado.Status = pedido.Status;
         pedidoAtualizado.Cupom = pedido.Cupom;
-        
 
         await _context.SaveChangesAsync();
         return Ok(pedidoAtualizado);

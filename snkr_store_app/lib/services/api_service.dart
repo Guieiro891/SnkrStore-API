@@ -52,7 +52,7 @@ class ApiService {
     return response.statusCode == 201;
   }
 
-  Future<bool> comprarTenis(Tenis tenis) async {
+  Future<bool> comprarTenis(Tenis tenis, int tipoPagamento) async {
     // 1. Cria o pedido
     final pedidoResponse = await http.post(
       Uri.parse('$baseUrl/Pedido'),
@@ -88,14 +88,14 @@ class ApiService {
 
     if (itemResponse.statusCode != 201) return false;
 
-    // 3. Finaliza o pedido (calcula total e muda status para Pago)
+    // 3. Finaliza o pedido
     final finalizarResponse = await http.post(
       Uri.parse('$baseUrl/Pedido/$pedidoId/finalizar'),
     );
 
     if (finalizarResponse.statusCode != 200) return false;
 
-    // 4. Registra o pagamento
+    // 4. Registra o pagamento com a forma escolhida
     final pedidoFinalizado = jsonDecode(finalizarResponse.body);
     final valorTotal = pedidoFinalizado['valorTotal'];
 
@@ -104,13 +104,20 @@ class ApiService {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'pedidoId': pedidoId,
-        'tipo': 0,
+        'tipo': tipoPagamento,
         'statusP': 1,
         'valor': valorTotal,
       }),
     );
 
     return pagamentoResponse.statusCode == 201;
+  }
+
+  Future<bool> cancelarPedido(int pedidoId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/Pedido/$pedidoId/cancelar'),
+    );
+    return response.statusCode == 200;
   }
 
   Future<List<Map<String, dynamic>>> buscarMeusPedidos() async {
