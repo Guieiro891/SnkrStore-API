@@ -78,7 +78,6 @@ public class PedidoController : ControllerBase
         pedidoAtualizado.Entrega = pedido.Entrega;
         pedidoAtualizado.Frete = pedido.Frete;
         pedidoAtualizado.Status = pedido.Status;
-        pedidoAtualizado.ValorTotal = pedido.ValorTotal;
         pedidoAtualizado.Cupom = pedido.Cupom;
         
 

@@ -31,6 +31,27 @@ class ApiService {
     }
   }
 
+  Future<bool> cadastrarCliente({
+    required String nome,
+    required String numero,
+    required String email,
+    required String cpf,
+    required String senha,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/Cliente'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'nome': nome,
+        'numero': numero,
+        'email': email,
+        'cpf': cpf,
+        'senhaHash': senha,
+      }),
+    );
+    return response.statusCode == 201;
+  }
+
   Future<bool> comprarTenis(Tenis tenis) async {
     final pedidoResponse = await http.post(
       Uri.parse('$baseUrl/Pedido'),
