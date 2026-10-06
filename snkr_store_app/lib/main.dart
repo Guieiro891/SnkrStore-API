@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'models/tenis.dart';
 import 'services/api_service.dart';
+import 'sessao.dart';
 import 'screens/login_screen.dart';
 import 'screens/meus_pedidos_screen.dart';
 
@@ -54,12 +55,10 @@ class _ListaTenisPageState extends State<ListaTenisPage> {
     if (!mounted) return;
 
     if (sucesso) {
-      // 1. Atualiza a lista para refletir o novo estoque
       setState(() {
         _futuroTenis = _apiService.buscarTenis();
       });
 
-      // 2. Mostra mensagem e navega para Meus Pedidos
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Compra realizada! ${tenis.modelo} (Tam ${tenis.tamanho})'),
@@ -81,7 +80,7 @@ class _ListaTenisPageState extends State<ListaTenisPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Snkr Store'),
+        title: Text('Olá, ${Sessao.clienteNome ?? "Cliente"}'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           IconButton(
@@ -91,6 +90,17 @@ class _ListaTenisPageState extends State<ListaTenisPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const MeusPedidosScreen()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sair',
+            onPressed: () {
+              Sessao.limpar();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
               );
             },
           ),
