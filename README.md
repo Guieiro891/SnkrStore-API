@@ -1,6 +1,6 @@
 # Snkr Store 👟
 
-Loja virtual de tênis desenvolvida como projeto acadêmico e de portfólio. A aplicação é composta por uma **API REST em C# (.NET)** e um **app mobile em Flutter**, integrados a um banco de dados **SQL Server**.
+Loja virtual de tênis desenvolvida como projeto acadêmico e de portfólio. A aplicação é composta por uma **API REST em C# (.NET)**, um **app mobile em Flutter** e um **site web (HTML/CSS/JS)**, todos integrados a um banco de dados **SQL Server**.
 
 ## 🚀 Tecnologias Utilizadas
 
@@ -12,6 +12,11 @@ Loja virtual de tênis desenvolvida como projeto acadêmico e de portfólio. A a
 - **BCrypt.Net** (hash de senhas)
 - **Data Annotations** (validações)
 - **System.Text.Json** (serialização e ocultação de campos sensíveis)
+
+### Front-end Web
+- **HTML5, CSS3 e JavaScript puro**
+- **Fetch API** para consumo da API
+- **ViaCEP** para busca de endereço por CEP
 
 ### Front-end Mobile
 - **Flutter / Dart**
@@ -29,14 +34,25 @@ Loja virtual de tênis desenvolvida como projeto acadêmico e de portfólio. A a
   - Ajuste de estoque ao editar/remover itens de pedido
   - Cálculo de valor total (subtotal - desconto + frete)
   - Registro de pagamento ao finalizar a compra
+  - Cancelamento de pedido com devolução de estoque
 - Endpoint para listar pedidos por cliente
+
+### Site Web
+- Catálogo de tênis consumindo a API em tempo real
+- Filtros por marca e busca em tempo real
+- Seleção de tamanho por produto (com verificação de estoque)
+- Carrinho lateral com animações
+- Login do cliente no checkout
+- Cálculo de frete por CEP via ViaCEP
+- Frete grátis acima de R$ 500
+- Checkout completo: cria pedido, itens, finaliza e registra pagamento
 
 ### App Mobile
 - Tela de login
 - Tela de cadastro de cliente
 - Listagem de tênis com modelo, tamanho, cor, estoque e preço
-- Botão de compra por produto
-- Tela "Meus Pedidos" com histórico
+- Compra com escolha de forma de pagamento (Pix, Cartão, Boleto)
+- Tela "Meus Pedidos" com histórico e cancelamento
 - Logout
 - Nome do cliente exibido na barra superior
 
@@ -44,9 +60,10 @@ Loja virtual de tênis desenvolvida como projeto acadêmico e de portfólio. A a
 
 ```
 SnkrStore/
-├── SnkrStore.Domain/   # Entidades e enums do domínio
-├── SnkrStore.API/      # API REST (controllers, DbContext, DTOs)
-└── snkr_store_app/     # App Flutter
+├── SnkrStore.Domain/    # Entidades e enums do domínio
+├── SnkrStore.API/       # API REST (controllers, DbContext, DTOs)
+├── snkr_store_app/      # App Flutter
+└── snkr_store_web/      # Site web (HTML/CSS/JS)
 ```
 
 ## 🗄️ Entidades do Domínio
@@ -69,6 +86,7 @@ SnkrStore/
 | GET | /api/Tenis/{id} | Busca tênis por ID |
 | POST | /api/Pedido | Cria um novo pedido |
 | POST | /api/Pedido/{id}/finalizar | Calcula total e finaliza o pedido |
+| POST | /api/Pedido/{id}/cancelar | Cancela o pedido e devolve o estoque |
 | POST | /api/ItemPedido | Adiciona item (com baixa de estoque) |
 | POST | /api/Pagamento | Registra o pagamento |
 | GET | /api/Pedido/cliente/{clienteId} | Histórico de pedidos do cliente |
@@ -79,6 +97,7 @@ SnkrStore/
 - .NET 10 SDK
 - SQL Server
 - Flutter SDK
+- Python (para servir o site web)
 - Visual Studio / VS Code
 
 ### Back-end (API)
@@ -92,7 +111,16 @@ dotnet run
 
 A API ficará disponível em `http://localhost:5000`. O Swagger pode ser acessado em `/swagger`.
 
-### Front-end (Flutter)
+### Site Web
+
+```
+cd snkr_store_web
+python -m http.server 8000
+```
+
+Acesse `http://localhost:8000` no navegador. A API precisa estar rodando.
+
+### App Mobile (Flutter)
 
 ```
 cd snkr_store_app
@@ -106,15 +134,16 @@ flutter run
 - Fluxo completo de compra (pedido → item → finalização → pagamento)
 - Baixa e devolução automática de estoque
 - Cadastro, login e logout de clientes
-- Histórico de pedidos
+- Histórico e cancelamento de pedidos
 - Segurança: senhas com hash BCrypt e ocultação nas respostas
+- Integração completa entre API, site web e app mobile
 
 🚧 Próximos passos:
-- Cancelamento de pedido (com devolução de estoque)
 - Endereço vinculado ao pedido
-- Imagens dos produtos
+- Painel administrativo
+- Imagens reais dos produtos cadastradas no banco
 - Deploy na nuvem
 
-
+---
 
 Desenvolvido por [Felipe Guieiro](https://github.com/Guieiro891)
