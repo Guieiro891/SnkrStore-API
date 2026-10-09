@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SNKR STORE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0d0d; --bg2: #141414; --bg3: #1c1c1c; --surface: #222222;
+      --border: #2a2a2a; --accent: #d4ff00; --text: #ffffff; --muted: #888888;
+      --danger: #ff4545; --success: #39d98a; --r: 14px; --rs: 8px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    a { text-decoration: none; color: inherit; }
+
+    header { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(13,13,13,.92); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; height: 64px; }
+    .logo { font-family: 'Bebas Neue', cursive; font-size: 28px; letter-spacing: 5px; color: var(--accent); }
+    .logo span { color: var(--text); }
+    .header-right { display: flex; align-items: center; gap: 14px; }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a { font-size: 13px; font-weight: 500; color: var(--muted); transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    .cart-btn { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 9px 20px; border-radius: 50px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; transition: .2s; }
+    .cart-btn:hover { border-color: var(--accent); color: var(--accent); }
+    #badge { background: var(--accent); color: #000; font-size: 11px; font-weight: 700; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    #user-info { font-size: 12px; color: var(--accent); }
+
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 89; opacity: 0; pointer-events: none; transition: opacity .35s; }
+    .overlay.on { opacity: 1; pointer-events: all; }
+
+    .sidebar { position: fixed; top: 64px; right: -390px; width: 370px; height: calc(100vh - 64px); background: var(--bg2); border-left: 1px solid var(--border); display: flex; flex-direction: column; z-index: 90; transition: right .35s cubic-bezier(.4,0,.2,1); }
+    .sidebar.open { right: 0; }
+    .s-head { padding: 22px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .s-head h2 { font-family: 'Bebas Neue', cursive; font-size: 22px; letter-spacing: 3px; color: var(--accent); }
+    .x-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 20px; transition: color .2s; }
+    .x-btn:hover { color: var(--text); }
+    #lista { list-style: none; flex: 1; overflow-y: auto; padding: 12px 24px; }
+    #lista li { display: flex; align-items: center; gap: 10px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .ci-thumb { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: var(--bg3); }
+    .ci-info { flex: 1; min-width: 0; }
+    .ci-n { font-size: 13px; font-weight: 500; display: block; }
+    .ci-brand { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+    .ci-p { color: var(--accent); font-size: 13px; font-weight: 600; white-space: nowrap; }
+    .ci-rm { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 15px; padding: 2px 4px; transition: color .2s; }
+    .ci-rm:hover { color: var(--danger); }
+    #empty-msg { text-align: center; color: var(--muted); font-size: 13px; padding: 48px 0; display: none; }
+    #empty-msg.on { display: block; }
+    .s-foot { padding: 20px 24px; border-top: 1px solid var(--border); }
+    .tot-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
+    .tot-row .lbl { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+    .tot-row .val { font-family: 'Bebas Neue', cursive; font-size: 28px; color: var(--accent); }
+    .btn-fin { width: 100%; padding: 15px; background: var(--accent); color: #000; border: none; border-radius: var(--rs); font-family: 'Bebas Neue', cursive; font-size: 19px; letter-spacing: 2px; cursor: pointer; transition: .2s; }
+    .btn-fin:hover { filter: brightness(.9); }
+    .btn-fin:disabled { opacity: .35; cursor: not-allowed; }
+
+    .main { padding: 100px 48px 60px; max-width: 1300px; margin: 0 auto; }
+    .hero { position: relative; overflow: hidden; height: 340px; border-radius: 18px; display: flex; flex-direction: column; justify-content: center; padding: 40px 56px; margin-bottom: 44px; background: linear-gradient(120deg, #0d0d0d 0%, #1a1a1a 50%, #0d0d0d 100%); border: 1px solid var(--border); }
+    .hero::before { content: ''; position: absolute; top: -40px; right: -40px; width: 340px; height: 340px; background: radial-gradient(circle, rgba(212,255,0,.12) 0%, transparent 70%); border-radius: 50%; pointer-events: none; }
+    .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+    .hero-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+    .hero h1 { font-family: 'Bebas Neue', cursive; font-size: clamp(36px, 5vw, 60px); letter-spacing: 4px; line-height: 1; margin-bottom: 12px; }
+    .hero h1 em { color: var(--accent); font-style: normal; }
+    .hero p { color: var(--muted); font-size: 14px; }
+    .sw { position: relative; max-width: 460px; margin-top: 24px; }
+    .si { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; width: 17px; height: 17px; }
+    #busca { width: 100%; padding: 13px 16px 13px 46px; background: rgba(255,255,255,.06); border: 1px solid var(--border); border-radius: 50px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; outline: none; }
+    #busca:focus { border-color: var(--accent); }
+
+    .filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 36px; align-items: center; }
+    .filters-label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+    .chip { display: flex; align-items: center; gap: 7px; padding: 9px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 50px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--muted); transition: .2s; }
+    .chip:hover { border-color: var(--accent); color: var(--text); }
+    .chip.active { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 700; }
+
+    .vitrine { display: grid; grid-template-columns: repeat(auto-fill, minmax(235px, 1fr)); gap: 18px; }
+    .card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; transition: transform .25s, border-color .25s; }
+    .card:hover { transform: translateY(-6px); border-color: rgba(212,255,0,.35); }
+    .ci-img { position: relative; height: 200px; background: var(--bg3); overflow: hidden; }
+    .ci-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
+    .card:hover .ci-img img { transform: scale(1.08); }
+    .badges { position: absolute; top: 10px; left: 10px; display: flex; flex-direction: column; gap: 5px; }
+    .btag { display: inline-block; background: rgba(0,0,0,.75); border: 1px solid rgba(255,255,255,.1); border-radius: 6px; padding: 3px 10px; font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); }
+    .cb { padding: 16px; }
+    .cb h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .cb .brand-tag { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+    .price-area { margin-bottom: 14px; display: flex; align-items: baseline; gap: 8px; }
+    .price { font-family: 'Bebas Neue', cursive; font-size: 26px; letter-spacing: 1px; color: var(--accent); }
+    .size-select { width: 100%; padding: 9px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--rs); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; margin-bottom: 10px; cursor: pointer; }
+    .size-select:focus { border-color: var(--accent); outline: none; }
+    .btn-add { width: 100%; padding: 11px; background: transparent; border: 1px solid var(--border); border-radius: var(--rs); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: .2s; }
+    .btn-add:hover { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 700; }
+    .btn-add:disabled { opacity: .4; cursor: not-allowed; }
+    .no-r { display: none; grid-column: 1/-1; text-align: center; padding: 80px 0; color: var(--muted); }
+
+    .banner-strip { background: var(--accent); color: #000; text-align: center; padding: 10px; font-family: 'Bebas Neue', cursive; font-size: 15px; letter-spacing: 2px; margin-bottom: 36px; border-radius: var(--rs); }
+
+    .modal-bg { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.65); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity .3s; }
+    .modal-bg.open { opacity: 1; pointer-events: all; }
+    .modal-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; width: 100%; max-width: 500px; max-height: 92vh; overflow-y: auto; transform: translateY(24px); transition: transform .3s; }
+    .modal-bg.open .modal-box { transform: none; }
+    .m-head { padding: 26px 28px 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--bg2); z-index: 1; border-bottom: 1px solid var(--border); }
+    .m-head h2 { font-family: 'Bebas Neue', cursive; font-size: 26px; letter-spacing: 3px; color: var(--accent); }
+    .ck-list { list-style: none; padding: 0 28px; }
+    .ck-list li { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .ck-list li .ck-img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; background: var(--bg3); }
+    .ck-list li .ck-name { flex: 1; font-weight: 500; }
+    .ck-list li .ck-price { color: var(--accent); font-weight: 600; }
+    .ck-tot { display: flex; justify-content: space-between; align-items: center; padding: 14px 28px; background: var(--bg3); border-top: 1px solid var(--border); }
+    .ck-tot span:first-child { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+    .ck-tot span:last-child { font-family: 'Bebas Neue', cursive; font-size: 22px; color: var(--accent); }
+
+    .frete-section { padding: 18px 28px; border-bottom: 1px solid var(--border); }
+    .sec-title { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+    .cep-row { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 8px; }
+    .cep-field { flex: 1; }
+    .cep-field label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .cep-field input { width: 100%; padding: 11px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--rs); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; }
+    .cep-field input:focus { border-color: var(--accent); }
+    .cep-field input.error { border-color: var(--danger); }
+    .cep-field input.valid { border-color: var(--success); }
+    .btn-calc { padding: 11px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--rs); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .btn-calc:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-calc:disabled { opacity: .4; cursor: not-allowed; }
+    .cep-hint { font-size: 11px; margin-top: 5px; min-height: 16px; }
+    .cep-hint.err { color: var(--danger); }
+    .cep-hint.ok { color: var(--success); }
+    .endereco-box { margin-top: 10px; padding: 10px 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--rs); font-size: 12px; color: var(--muted); display: none; }
+    .endereco-box.show { display: block; }
+    .endereco-box strong { color: var(--text); }
+    .frete-resultado { margin-top: 12px; display: none; }
+    .frete-resultado.show { display: block; }
+    .frete-option { display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--rs); margin-bottom: 6px; cursor: pointer; }
+    .frete-option.selected { border-color: var(--accent); background: rgba(212,255,0,.05); }
+    .frete-option input[type=radio] { accent-color: var(--accent); margin-right: 10px; }
+    .frete-label { display: flex; align-items: center; gap: 10px; flex: 1; font-size: 13px; }
+    .frete-price { font-family: 'Bebas Neue', cursive; font-size: 18px; color: var(--accent); }
+    .frete-price.free { color: var(--success); }
+    .ck-subtotais { padding: 14px 28px 6px; }
+    .subtot-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); padding: 4px 0; }
+    .ck-grand { display: flex; justify-content: space-between; align-items: center; padding: 16px 28px; background: var(--bg3); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .ck-grand span:first-child { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+    .ck-grand span:last-child { font-family: 'Bebas Neue', cursive; font-size: 30px; color: var(--accent); }
+    .m-form { padding: 20px 28px 28px; }
+    .m-form label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    #pagamento { width: 100%; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--rs); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; outline: none; margin-bottom: 20px; cursor: pointer; }
+    .m-actions { display: flex; gap: 10px; }
+    .btn-back { padding: 13px 20px; background: transparent; border: 1px solid var(--border); border-radius: var(--rs); color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 14px; cursor: pointer; }
+    .btn-back:hover { border-color: var(--text); color: var(--text); }
+    .btn-ok { flex: 1; padding: 13px; background: var(--accent); color: #000; border: none; border-radius: var(--rs); font-family: 'Bebas Neue', cursive; font-size: 20px; letter-spacing: 2px; cursor: pointer; }
+    .btn-ok:hover { filter: brightness(.9); }
+    .btn-ok:disabled { opacity: .35; cursor: not-allowed; }
+
+    .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(70px); background: var(--bg2); border: 1px solid var(--accent); color: var(--text); padding: 12px 24px; border-radius: 50px; font-size: 13px; font-weight: 500; z-index: 300; transition: transform .4s; display: flex; align-items: center; gap: 8px; }
+    .toast .dot { color: var(--accent); font-size: 16px; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; vertical-align: middle; margin-right: 6px; }
+
+    @media (max-width: 680px) {
+      header { padding: 0 16px; }
+      .nav-links { display: none; }
+      .main { padding: 84px 16px 48px; }
+      .hero { padding: 32px 24px; height: auto; min-height: 320px; }
+      .vitrine { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .sidebar { width: 100%; right: -100%; }
+      .sidebar.open { right: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#"><span>SNKR</span>STORE</a>
+  <div class="header-right">
+    <span id="user-info"></span>
+    <nav class="nav-links">
+      <a href="#">Novidades</a>
+      <a href="#">Promoções</a>
+      <a href="#">Sobre</a>
+    </nav>
+    <button class="cart-btn" onclick="toggleCart()">
+      🛒 Carrinho <span id="badge">0</span>
+    </button>
+  </div>
+</header>
+
+<div class="overlay" id="ov" onclick="toggleCart()"></div>
+
+<aside class="sidebar" id="sb">
+  <div class="s-head">
+    <h2>Carrinho</h2>
+    <button class="x-btn" onclick="toggleCart()">✕</button>
+  </div>
+  <ul id="lista"></ul>
+  <p id="empty-msg" class="on">🛒<br>Nenhum item adicionado ainda.</p>
+  <div class="s-foot">
+    <div class="tot-row">
+      <span class="lbl">Subtotal</span>
+      <span class="val" id="total">R$ 0</span>
+    </div>
+    <button class="btn-fin" id="btn-fin" disabled onclick="abrirCheckout()">FINALIZAR COMPRA</button>
+  </div>
+</aside>
+
+<main class="main">
+  <section class="hero">
+    <div class="hero-eyebrow"><span class="dot"></span> Coleção 2025</div>
+    <h1>ENCONTRE SEU<br><em>TÊNIS IDEAL</em></h1>
+    <p>Frete grátis acima de R$ 500 · Entrega expressa</p>
+    <div class="sw">
+      <svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="busca" placeholder="Buscar tênis..." oninput="filtrar()">
+    </div>
+  </section>
+
+  <div class="banner-strip">🔥 FRETE GRÁTIS ACIMA DE R$ 500 · ATÉ 10× SEM JUROS</div>
+
+  <div class="filters">
+    <span class="filters-label">Marca:</span>
+    <button class="chip active" data-marca="todos" onclick="setMarca(this)">Todos</button>
+    <button class="chip" data-marca="1" onclick="setMarca(this)">Nike</button>
+    <button class="chip" data-marca="2" onclick="setMarca(this)">Adidas</button>
+  </div>
+
+  <section class="vitrine" id="vitrine">
+    <div class="no-r" id="noR"><h3>Nenhum resultado</h3><p>Tente outro nome ou marca</p></div>
+  </section>
+</main>
+
+<div class="modal-bg" id="modal" onclick="if(event.target===this) fecharCheckout()">
+  <div class="modal-box">
+    <div class="m-head">
+      <h2>Revisar Pedido</h2>
+      <button class="x-btn" onclick="fecharCheckout()">✕</button>
+    </div>
+
+    <ul class="ck-list" id="ck-itens"></ul>
+
+    <div class="ck-tot">
+      <span>Subtotal Produtos</span>
+      <span id="ck-subtotal">R$ 0</span>
+    </div>
+
+    <div class="frete-section">
+      <div class="sec-title">👤 Identificação</div>
+      <div class="cep-row">
+        <div class="cep-field">
+          <label>E-mail</label>
+          <input type="email" id="login-email" placeholder="seu@email.com">
+        </div>
+      </div>
+      <div class="cep-row">
+        <div class="cep-field">
+          <label>Senha</label>
+          <input type="password" id="login-senha" placeholder="********">
+        </div>
+        <button class="btn-calc" id="btn-login" onclick="fazerLogin()">Entrar</button>
+      </div>
+      <div class="cep-hint" id="login-hint"></div>
+    </div>
+
+    <div class="frete-section">
+      <div class="sec-title">📦 Calcular Frete por CEP</div>
+      <div class="cep-row">
+        <div class="cep-field">
+          <label>CEP de Entrega</label>
+          <input type="text" id="cep-input" placeholder="00000-000" maxlength="9" oninput="formatarCEP(this)">
+          <div class="cep-hint" id="cep-hint"></div>
+        </div>
+        <button class="btn-calc" id="btn-calc-frete" onclick="calcularFrete()" disabled>Calcular</button>
+      </div>
+      <div class="endereco-box" id="endereco-box"></div>
+      <div class="frete-resultado" id="frete-resultado">
+        <div class="frete-option selected" id="opt-normal" onclick="selecionarFrete('normal')">
+          <input type="radio" name="frete" value="normal" checked>
+          <div class="frete-label"><span>🚚</span><div><div class="ft-name">Entrega Padrão (PAC)</div><div class="ft-days" id="days-normal">–</div></div></div>
+          <span class="frete-price" id="price-normal">–</span>
+        </div>
+        <div class="frete-option" id="opt-express" onclick="selecionarFrete('express')">
+          <input type="radio" name="frete" value="express">
+          <div class="frete-label"><span>⚡</span><div><div class="ft-name">Entrega Expressa (SEDEX)</div><div class="ft-days" id="days-express">–</div></div></div>
+          <span class="frete-price" id="price-express">–</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ck-subtotais" id="ck-subtotais" style="display:none">
+      <div class="subtot-row"><span>Produtos</span><span id="st-produtos">–</span></div>
+      <div class="subtot-row"><span>Frete</span><span id="st-frete">–</span></div>
+    </div>
+
+    <div class="ck-grand">
+      <span>Total do Pedido</span>
+      <span id="ck-grand-val">R$ 0</span>
+    </div>
+
+    <div class="m-form">
+      <label for="pagamento">Forma de Pagamento</label>
+      <select id="pagamento">
+        <option value="1">💳 Cartão de Crédito</option>
+        <option value="0">📱 Pix</option>
+        <option value="2">📄 Boleto Bancário</option>
+      </select>
+      <div class="m-actions">
+        <button class="btn-back" onclick="fecharCheckout()">Voltar</button>
+        <button class="btn-ok" id="btn-confirmar" onclick="confirmarPedido()" disabled>CONFIRMAR PEDIDO</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span class="dot">✓</span><span id="tmsg">Item adicionado!</span></div>
+
+<script>
+  const API_URL = 'http://localhost:5000/api';
+
+  const imagens = {
+    "Jordan 1": "https://imgnike-a.akamaihd.net/360x360/016510IHA2.jpg",
+    "Air Max 90": "https://imgnike-a.akamaihd.net/360x360/022143IOA2.jpg",
+    "SB Dunk Low": "https://imgnike-a.akamaihd.net/360x360/09349151A2.jpg",
+    "Air Max 97": "https://imgnike-a.akamaihd.net/360x360/016324IGA10.jpg",
+    "React Infinity Run Flyknit": "https://imgnike-a.akamaihd.net/360x360/013243IEA8.jpg",
+    "Adidas Superstar": "https://assets.adidas.com/images/h_2000,f_auto,q_auto,fl_lossy,c_fill,g_auto/3589d6bb7edf4eacbd6237a8cd414ee6_9366/Tenis_Superstar_II_Branco_JH5469_06_standard.jpg",
+    "Campus 00s": "https://assets.adidas.com/images/h_2000,f_auto,q_auto,fl_lossy,c_fill,g_auto/6aba0ac0acab4f15b7d024050d78c40f_9366/Tenis_Campus_00s_Preto_JK3370_06_standard.jpg",
+    "Samba OG": "https://assets.adidas.com/images/h_2000,f_auto,q_auto,fl_lossy,c_fill,g_auto/63f408625e484417a6d26cbac08eb32c_9366/Tenis_Samba_OG_Branco_JK4976_06_standard.jpg",
+    "Adizero EVO SL": "https://assets.adidas.com/images/h_2000,f_auto,q_auto,fl_lossy,c_fill,g_auto/6ee5fbc69b224789ae30df1cb9748e79_9366/Tenis_Adizero_EVO_SL_Preto_JR4728_06_standard.jpg",
+    "Megaride": "https://assets.adidas.com/images/h_2000,f_auto,q_auto,fl_lossy,c_fill,g_auto/a77861731393469f88eaa122bd5e76b8_9366/Tenis_Megaride_Preto_JP9626_06_standard.jpg"
+  };
+
+  const nomesMarca = { 1: "Nike", 2: "Adidas" };
+
+  let tenisAgrupados = [];
+  let carrinho = [];
+  let marcaAtiva = "todos";
+  let somaGlobal = 0;
+  let clienteLogado = null;
+  let freteInfo = { valor: 0, tipo: 'normal', calculado: false, normalVal: 0, expressVal: 0 };
+
+  const tabelaFrete = {
+    SP: { pac: 0, sedex: 14.90, pacDias: "1–3", sedexDias: "1" },
+    RJ: { pac: 19.90, sedex: 34.90, pacDias: "3–5", sedexDias: "1–2" },
+    MG: { pac: 22.90, sedex: 39.90, pacDias: "4–6", sedexDias: "1–2" },
+    PR: { pac: 27.90, sedex: 49.90, pacDias: "4–6", sedexDias: "1–2" },
+    RS: { pac: 32.90, sedex: 54.90, pacDias: "5–7", sedexDias: "2" },
+    BA: { pac: 39.90, sedex: 69.90, pacDias: "6–8", sedexDias: "2–3" },
+    PE: { pac: 44.90, sedex: 79.90, pacDias: "7–9", sedexDias: "3" },
+    CE: { pac: 44.90, sedex: 79.90, pacDias: "7–9", sedexDias: "3" },
+    AM: { pac: 59.90, sedex: 99.90, pacDias: "10–14", sedexDias: "4–5" }
+  };
+
+  async function carregarTenis() {
+    try {
+      const resp = await fetch(`${API_URL}/Tenis`);
+      const lista = await resp.json();
+
+      const agrupado = {};
+      lista.forEach(t => {
+        if (!agrupado[t.modelo]) {
+          agrupado[t.modelo] = {
+            modelo: t.modelo,
+            marcaId: t.marcaId,
+            cor: t.cor,
+            preco: t.preco,
+            tamanhos: []
+          };
+        }
+        agrupado[t.modelo].tamanhos.push({ id: t.id, tamanho: t.tamanho, estoque: t.estoque });
+      });
+
+      tenisAgrupados = Object.values(agrupado);
+      renderProdutos(tenisAgrupados);
+    } catch (err) {
+      console.error("[API]", err);
+      document.getElementById("vitrine").innerHTML = `<div class="no-r" style="display:block"><h3>Erro ao carregar produtos</h3><p>Verifique se a API está rodando em ${API_URL}</p></div>`;
+    }
+  }
+
+  function renderProdutos(lista) {
+    const vit = document.getElementById("vitrine");
+    [...vit.querySelectorAll(".card")].forEach(c => c.remove());
+    document.getElementById("noR").style.display = lista.length === 0 ? "block" : "none";
+
+    lista.forEach((p, i) => {
+      const img = imagens[p.modelo] || "https://via.placeholder.com/300x300/1c1c1c/888?text=" + encodeURIComponent(p.modelo);
+      const marcaNome = nomesMarca[p.marcaId] || "Marca";
+
+      const opcoes = p.tamanhos
+        .filter(t => t.estoque > 0)
+        .map(t => `<option value="${t.id}" data-estoque="${t.estoque}" data-tamanho="${t.tamanho}">Tam ${t.tamanho} (${t.estoque} disp.)</option>`)
+        .join("");
+
+      const d = document.createElement("div");
+      d.className = "card";
+      d.innerHTML = `
+        <div class="ci-img">
+          <img src="${img}" alt="${p.modelo}">
+          <div class="badges"><span class="btag">${marcaNome.toUpperCase()}</span></div>
+        </div>
+        <div class="cb">
+          <div class="brand-tag">${marcaNome}</div>
+          <h3>${p.modelo}</h3>
+          <div class="price-area"><span class="price">R$ ${p.preco.toFixed(2)}</span></div>
+          <select class="size-select" id="size-${i}">${opcoes || '<option disabled>Sem estoque</option>'}</select>
+          <button class="btn-add" ${p.tamanhos.some(t => t.estoque > 0) ? '' : 'disabled'} onclick='addCart(${JSON.stringify({modelo: p.modelo, marcaId: p.marcaId, cor: p.cor, preco: p.preco})}, ${i}, this)'>
+            + Adicionar ao Carrinho
+          </button>
+        </div>`;
+      vit.appendChild(d);
+    });
+  }
+
+  function filtrar() {
+    const q = document.getElementById("busca").value.toLowerCase().trim();
+    renderProdutos(tenisAgrupados.filter(p =>
+      (marcaAtiva === "todos" || String(p.marcaId) === marcaAtiva) &&
+      p.modelo.toLowerCase().includes(q)
+    ));
+  }
+
+  function setMarca(el) {
+    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    el.classList.add("active");
+    marcaAtiva = el.dataset.marca;
+    filtrar();
+  }
+
+  function addCart(p, idx, btn) {
+    const select = document.getElementById(`size-${idx}`);
+    if (!select || !select.value) {
+      showToast("Escolha um tamanho primeiro");
+      return;
+    }
+    const option = select.options[select.selectedIndex];
+    const tenisId = parseInt(select.value);
+    const tamanho = parseInt(option.dataset.tamanho);
+    const estoque = parseInt(option.dataset.estoque);
+
+    const jaNoCarrinho = carrinho.filter(c => c.tenisId === tenisId).length;
+    if (jaNoCarrinho >= estoque) {
+      showToast("Estoque insuficiente");
+      return;
+    }
+
+    carrinho.push({
+      tenisId: tenisId,
+      modelo: p.modelo,
+      marcaId: p.marcaId,
+      tamanho: tamanho,
+      preco: p.preco,
+      img: imagens[p.modelo] || ""
+    });
+    renderCarrinho();
+    showToast(`${p.modelo} (Tam ${tamanho}) adicionado!`);
+
+    btn.textContent = "Adicionado ✓";
+    setTimeout(() => btn.textContent = "+ Adicionar ao Carrinho", 1500);
+  }
+
+  function removeCart(i) {
+    carrinho.splice(i, 1);
+    renderCarrinho();
+  }
+
+  function renderCarrinho() {
+    const ul = document.getElementById("lista");
+    const em = document.getElementById("empty-msg");
+    const tot = document.getElementById("total");
+    const btn = document.getElementById("btn-fin");
+    const badge = document.getElementById("badge");
+
+    ul.innerHTML = "";
+    let soma = 0;
+    carrinho.forEach((item, i) => {
+      soma += item.preco;
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <img class="ci-thumb" src="${item.img}" alt="${item.modelo}">
+        <div class="ci-info">
+          <span class="ci-n">${item.modelo}</span>
+          <span class="ci-brand">Tam ${item.tamanho}</span>
+        </div>
+        <span class="ci-p">R$ ${item.preco.toFixed(2)}</span>
+        <button class="ci-rm" onclick="removeCart(${i})">✕</button>`;
+      ul.appendChild(li);
+    });
+
+    somaGlobal = soma;
+    em.classList.toggle("on", carrinho.length === 0);
+    tot.textContent = "R$ " + soma.toFixed(2);
+    btn.disabled = carrinho.length === 0;
+    badge.textContent = carrinho.length;
+  }
+
+  function toggleCart() {
+    document.getElementById("sb").classList.toggle("open");
+    document.getElementById("ov").classList.toggle("on");
+  }
+
+  function formatarCEP(input) {
+    let v = input.value.replace(/\D/g, "").slice(0, 8);
+    if (v.length > 5) v = v.replace(/(\d{5})(\d{1,3})/, "$1-$2");
+    input.value = v;
+    const nums = v.replace(/\D/g, "");
+    const hint = document.getElementById("cep-hint");
+    const btnCalc = document.getElementById("btn-calc-frete");
+    input.classList.remove("error", "valid");
+
+    if (nums.length === 0) { hint.textContent = ""; btnCalc.disabled = true; return; }
+    if (nums.length < 8) { hint.textContent = "CEP incompleto"; hint.className = "cep-hint err"; input.classList.add("error"); btnCalc.disabled = true; return; }
+
+    hint.textContent = "CEP válido – clique em Calcular";
+    hint.className = "cep-hint ok";
+    input.classList.add("valid");
+    btnCalc.disabled = false;
+  }
+
+  async function calcularFrete() {
+    const cep = document.getElementById("cep-input").value.replace(/\D/g, "");
+    const btn = document.getElementById("btn-calc-frete");
+    const hint = document.getElementById("cep-hint");
+    btn.innerHTML = `<span class="spinner"></span>Buscando`;
+    btn.disabled = true;
+
+    try {
+      const resp = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await resp.json();
+      if (data.erro) {
+        hint.textContent = "CEP não encontrado."; hint.className = "cep-hint err";
+        btn.textContent = "Calcular"; btn.disabled = false; return;
+      }
+
+      const endBox = document.getElementById("endereco-box");
+      endBox.innerHTML = `<strong>${data.logradouro || ''}, ${data.bairro || ''} – ${data.localidade}/${data.uf}</strong>`;
+      endBox.classList.add("show");
+
+      const uf = data.uf.toUpperCase();
+      const tabela = tabelaFrete[uf] || tabelaFrete["AM"];
+      const pacPreco = somaGlobal >= 500 ? 0 : tabela.pac;
+      const sedexPreco = tabela.sedex;
+
+      document.getElementById("price-normal").textContent = pacPreco === 0 ? "GRÁTIS" : "R$ " + pacPreco.toFixed(2);
+      document.getElementById("price-express").textContent = "R$ " + sedexPreco.toFixed(2);
+      document.getElementById("days-normal").textContent = tabela.pacDias + " dias úteis";
+      document.getElementById("days-express").textContent = tabela.sedexDias + " dias úteis";
+
+      freteInfo = { normalVal: pacPreco, expressVal: sedexPreco, tipo: 'normal', valor: pacPreco, calculado: true };
+      document.getElementById("frete-resultado").classList.add("show");
+      selecionarFrete('normal');
+      btn.textContent = "Recalcular";
+      btn.disabled = false;
+    } catch (err) {
+      hint.textContent = "Erro ao buscar CEP."; hint.className = "cep-hint err";
+      btn.textContent = "Tentar novamente"; btn.disabled = false;
+    }
+  }
+
+  function selecionarFrete(tipo) {
+    freteInfo.tipo = tipo;
+    freteInfo.valor = tipo === 'normal' ? freteInfo.normalVal : freteInfo.expressVal;
+    document.getElementById("opt-normal").classList.toggle("selected", tipo === 'normal');
+    document.getElementById("opt-express").classList.toggle("selected", tipo === 'express');
+    atualizarTotalFinal();
+  }
+
+  function atualizarTotalFinal() {
+    if (!freteInfo.calculado) return;
+    const total = somaGlobal + freteInfo.valor;
+    document.getElementById("st-produtos").textContent = "R$ " + somaGlobal.toFixed(2);
+    document.getElementById("st-frete").textContent = freteInfo.valor === 0 ? "GRÁTIS" : "R$ " + freteInfo.valor.toFixed(2);
+    document.getElementById("ck-grand-val").textContent = "R$ " + total.toFixed(2);
+    document.getElementById("ck-subtotais").style.display = "block";
+    document.getElementById("btn-confirmar").disabled = false;
+  }
+
+  function abrirCheckout() {
+    const ul = document.getElementById("ck-itens");
+    ul.innerHTML = "";
+    let soma = 0;
+    carrinho.forEach(item => {
+      soma += item.preco;
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <img class="ck-img" src="${item.img}" alt="${item.modelo}">
+        <span class="ck-name">${item.modelo} (Tam ${item.tamanho})</span>
+        <span class="ck-price">R$ ${item.preco.toFixed(2)}</span>`;
+      ul.appendChild(li);
+    });
+    somaGlobal = soma;
+    document.getElementById("ck-subtotal").textContent = "R$ " + soma.toFixed(2);
+    document.getElementById("ck-grand-val").textContent = "R$ " + soma.toFixed(2);
+
+    document.getElementById("cep-input").value = "";
+    document.getElementById("cep-hint").textContent = "";
+    document.getElementById("btn-calc-frete").disabled = true;
+    document.getElementById("frete-resultado").classList.remove("show");
+    document.getElementById("ck-subtotais").style.display = "none";
+    document.getElementById("btn-confirmar").disabled = true;
+    document.getElementById("endereco-box").classList.remove("show");
+
+    if (clienteLogado) {
+      document.getElementById("login-email").value = clienteLogado.email || "";
+      document.getElementById("login-hint").textContent = `✓ Logado como ${clienteLogado.nome}`;
+      document.getElementById("login-hint").className = "cep-hint ok";
+    }
+
+    freteInfo = { valor: 0, tipo: 'normal', calculado: false, normalVal: 0, expressVal: 0 };
+    document.getElementById("modal").classList.add("open");
+    document.getElementById("sb").classList.remove("open");
+    document.getElementById("ov").classList.remove("on");
+  }
+
+  function fecharCheckout() {
+    document.getElementById("modal").classList.remove("open");
+  }
+
+  async function fazerLogin() {
+    const email = document.getElementById("login-email").value.trim();
+    const senha = document.getElementById("login-senha").value;
+    const hint = document.getElementById("login-hint");
+
+    if (!email || !senha) {
+      hint.textContent = "Preencha e-mail e senha"; hint.className = "cep-hint err"; return;
+    }
+
+    hint.textContent = "Entrando..."; hint.className = "cep-hint";
+    try {
+      const resp = await fetch(`${API_URL}/Cliente/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, senha })
+      });
+      if (resp.status === 200) {
+        clienteLogado = await resp.json();
+        hint.textContent = `✓ Bem-vindo, ${clienteLogado.nome}`;
+        hint.className = "cep-hint ok";
+        document.getElementById("user-info").textContent = `Olá, ${clienteLogado.nome}`;
+        if (freteInfo.calculado) document.getElementById("btn-confirmar").disabled = false;
+      } else {
+        hint.textContent = "E-mail ou senha inválidos"; hint.className = "cep-hint err";
+      }
+    } catch (err) {
+      hint.textContent = "Erro de conexão com a API"; hint.className = "cep-hint err";
+    }
+  }
+
+  async function confirmarPedido() {
+    if (!clienteLogado) { showToast("Faça login antes de confirmar"); return; }
+    if (!freteInfo.calculado) { showToast("Calcule o frete antes"); return; }
+
+    const btn = document.getElementById("btn-confirmar");
+    btn.disabled = true;
+    btn.textContent = "PROCESSANDO...";
+
+    const tipoPagamento = parseInt(document.getElementById("pagamento").value);
+
+    try {
+      // 1. Cria o Pedido
+      const pedidoResp = await fetch(`${API_URL}/Pedido`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clienteId: clienteLogado.id,
+          data: new Date().toISOString(),
+          desconto: 0,
+          frete: freteInfo.valor,
+          valorTotal: 0,
+          status: 0,
+          entrega: 0,
+          comprovanteFiscal: "",
+          cupom: ""
+        })
+      });
+      if (pedidoResp.status !== 201) throw new Error("Falha ao criar pedido");
+      const pedido = await pedidoResp.json();
+
+      // 2. Cria os Itens
+      for (const item of carrinho) {
+        const itemResp = await fetch(`${API_URL}/ItemPedido`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            pedidoId: pedido.id,
+            tenisId: item.tenisId,
+            quantidade: 1,
+            precoPago: item.preco
+          })
+        });
+        if (itemResp.status !== 201) throw new Error("Falha ao criar item");
+      }
+
+      // 3. Finaliza
+      const finResp = await fetch(`${API_URL}/Pedido/${pedido.id}/finalizar`, { method: "POST" });
+      if (finResp.status !== 200) throw new Error("Falha ao finalizar");
+      const pedidoFin = await finResp.json();
+
+      // 4. Registra Pagamento
+      await fetch(`${API_URL}/Pagamento`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pedidoId: pedido.id,
+          tipo: tipoPagamento,
+          statusP: 1,
+          valor: pedidoFin.valorTotal
+        })
+      });
+
+      fecharCheckout();
+      carrinho = [];
+      renderCarrinho();
+      carregarTenis();
+      showToast(`🎉 Pedido #${pedido.id} confirmado!`);
+
+    } catch (err) {
+      console.error(err);
+      showToast("Erro ao processar pedido. Tente novamente.");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "CONFIRMAR PEDIDO";
+    }
+  }
+
+  let _toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    document.getElementById("tmsg").textContent = msg;
+    t.classList.add("show");
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => t.classList.remove("show"), 2800);
+  }
+
+  carregarTenis();
+  renderCarrinho();
+</script>
+
+</body>
+</html>
